@@ -18,7 +18,7 @@ A GNOME Shell extension that obscures window preview thumbnails in the Activitie
 
 **Early development phase as a prototype.** The extension code is structurally complete, but the core integration with GNOME Shell's private UI API has **not yet been tested against a running GNOME Shell session**. Verification steps before use are documented in [Known Limitations](#known-limitations).
 
-**⚠ Warning: Blur Mode Shell Freeze Risk**: Blur mode can cause GNOME Shell to freeze or crash when opening the Activities overview. If this occurs, you must log out and log back in to recover the session. A simple extension restart is insufficient. See [Blur Mode: Shell Freeze Risk](#blur-mode-shell-freeze-risk) for details.
+**⚠ Warning: Blur Mode Shell Freeze Risk**: Blur mode can cause GNOME Shell to freeze or crash *while running*, when opening the Activities overview. If this occurs, you must log out and log back in to recover the session. A simple extension restart is insufficient. This is separate from the routine session restart every fresh install requires (see [Load and Test](#load-and-test)) — that one just makes GNOME Shell notice the new extension; this one is a runtime crash-recovery step. See [Blur Mode: Shell Freeze Risk](#blur-mode-shell-freeze-risk) for details.
 
 ## Description
 
@@ -87,13 +87,21 @@ gnome-extensions enable overview-privacy@pat
 
 ### Load and Test
 
-**Nested Wayland session** (no logout required; requires X11 host):
+GNOME Shell only scans its extensions directory and loads new extension UUIDs at session (or
+nested-session) start. This means every fresh install — including this one — requires one of the
+two options below before the extension becomes visible. This is normal and expected; it is
+unrelated to the blur-mode freeze risk described in [Known Limitations](#known-limitations), which
+can occur later, after the extension is already loaded and running.
+
+**Nested session** (requires an X11 host; does not affect or require logging out of your real session):
 
 ```bash
 dbus-run-session -- gnome-shell --nested --wayland
 ```
 
-**X11 host (Wayland only)**: Log out and log back in. GNOME Shell only loads extensions at session or nested-session start.
+**Wayland-only host** (no nested-session option available): log out and log back in. A simple
+`gnome-extensions disable`/`enable` cycle, or restarting the extension alone, is not sufficient —
+GNOME Shell must restart its own process to pick up a brand-new UUID.
 
 ### Monitor Logs
 

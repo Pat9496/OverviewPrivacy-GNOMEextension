@@ -160,15 +160,25 @@ cat <<EOF
 Install steps complete.
 
 GNOME Shell only loads a brand-new extension UUID at session (or nested-session)
-start, so enabling it just now may not take effect in your current session yet.
-To test:
+start, so enabling it just now will not take effect in your current session yet.
+This is a normal, one-time step required after every fresh install (or after
+changing the UUID) -- it is unrelated to the blur-mode freeze risk below. To
+test:
 
-  - Nested session (X11 host required, no logout):
+  - Nested session (X11 host required, no logout of your real session):
       dbus-run-session -- gnome-shell --nested --wayland
-  - Wayland-only host: log out and back in.
+  - Wayland-only host (no nested-session option): log out and back in.
+    A disable/enable cycle alone is not enough; GNOME Shell itself must restart.
 
 Open the preferences UI with:
   gnome-extensions prefs ${UUID}
+
+Warning: blur mode can freeze or crash GNOME Shell later, while it is running
+(when opening the Activities overview) -- not during install. If that happens,
+you must log out and log back in to recover; disabling the extension alone
+will not fix a frozen session. See README.md's "Blur Mode: Shell Freeze Risk"
+section for details, and consider Black or White mode as a more stable
+alternative.
 
 Note: extension.js's getPreviewContentActor() relies on an undocumented,
 unverified GNOME Shell internal actor name. If nothing visually changes in the
