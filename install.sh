@@ -155,6 +155,99 @@ if [[ -n "${enable_output}" ]]; then
     printf '%s\n' "${enable_output}"
 fi
 
+chezmoi_source_dir=""
+if command -v chezmoi >/dev/null 2>&1; then
+    if chezmoi_candidate_dir="$(chezmoi source-path 2>/dev/null)" && [[ -n "${chezmoi_candidate_dir}" && -d "${chezmoi_candidate_dir}" ]]; then
+        chezmoi_source_dir="${chezmoi_candidate_dir}"
+    fi
+fi
+
+if [[ -n "${chezmoi_source_dir}" ]]; then
+    printf '\n'
+    printf 'chezmoi detected, with an initialized source directory at %s.\n' "${chezmoi_source_dir}"
+    printf 'Overview Privacy can add its GSettings (protected-apps, blur-radius) to your\n'
+    printf 'chezmoi source state, so a later "chezmoi apply" restores them on other\n'
+    printf 'machines. This only writes files under %s;\n' "${chezmoi_source_dir}"
+    printf 'it does not run chezmoi apply and does not commit or push anything.\n'
+
+    reply=""
+    printf 'Add these settings to chezmoi now? [y/N] '
+    if ! read -r reply < /dev/tty; then
+        reply=""
+    fi
+    case "${reply}" in
+        [yY]|[yY][eE][sS])
+            if ! command -v dconf >/dev/null 2>&1; then
+                printf 'warning: dconf not found, skipping chezmoi settings sync.\n' >&2
+            else
+                dconf_path="/org/gnome/shell/extensions/overview-privacy/"
+                snapshot_rel=".chezmoitemplates/overview-privacy-gsettings.ini"
+                snapshot_path="${chezmoi_source_dir}/${snapshot_rel}"
+                script_path="${chezmoi_source_dir}/run_onchange_overview-privacy-restore-gsettings.sh.tmpl"
+
+                if ! dconf_dump="$(dconf dump "${dconf_path}" 2>&1)"; then
+                    printf 'warning: dconf dump failed, skipping chezmoi settings sync:\n%s\n' "${dconf_dump}" >&2
+                else
+                    write_snapshot=1
+                    if [[ -e "${snapshot_path}" ]]; then
+                        if diff -q <(printf '%s\n' "${dconf_dump}") "${snapshot_path}" >/dev/null 2>&1; then
+                            write_snapshot=0
+                            printf 'chezmoi settings snapshot already up to date: %s\n' "${snapshot_path}"
+                        else
+                            printf 'The chezmoi settings snapshot differs from the current settings:\n'
+                            diff -u "${snapshot_path}" <(printf '%s\n' "${dconf_dump}") || true
+                            snapshot_reply=""
+                            printf 'Update %s with the current settings? [y/N] ' "${snapshot_path}"
+                            if ! read -r snapshot_reply < /dev/tty; then
+                                snapshot_reply=""
+                            fi
+                            case "${snapshot_reply}" in
+                                [yY]|[yY][eE][sS]) ;;
+                                *)
+                                    write_snapshot=0
+                                    printf 'Leaving existing chezmoi settings snapshot untouched.\n'
+                                    ;;
+                            esac
+                        fi
+                    fi
+
+                    if [[ "${write_snapshot}" -eq 1 ]]; then
+                        mkdir -p "${chezmoi_source_dir}/.chezmoitemplates"
+                        printf '%s\n' "${dconf_dump}" > "${snapshot_path}"
+                        printf 'Wrote current settings to %s\n' "${snapshot_path}"
+                    fi
+
+                    if [[ -e "${script_path}" ]]; then
+                        printf 'chezmoi restore script already present: %s\n' "${script_path}"
+                    else
+                        cat > "${script_path}" <<SCRIPT_EOF
+#!/usr/bin/env bash
+set -euo pipefail
+
+if ! command -v dconf >/dev/null 2>&1; then
+    printf 'overview-privacy: dconf not found, skipping GSettings restore.\n' >&2
+    exit 0
+fi
+
+dconf load '${dconf_path}' <<'DCONF_DATA_EOF'
+{{ include "${snapshot_rel}" }}
+DCONF_DATA_EOF
+SCRIPT_EOF
+                        chmod +x "${script_path}"
+                        printf 'Created chezmoi restore script: %s\n' "${script_path}"
+                    fi
+
+                    printf 'Review with: chezmoi diff --script-contents=false\n'
+                    printf 'Then commit and push your chezmoi source repo yourself when ready.\n'
+                fi
+            fi
+            ;;
+        *)
+            printf 'Skipping chezmoi settings sync.\n'
+            ;;
+    esac
+fi
+
 cat <<EOF
 
 Install steps complete.

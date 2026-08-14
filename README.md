@@ -51,6 +51,8 @@ The script checks for required commands (`glib-compile-schemas` and `gnome-exten
 
 On `rpm-ostree` systems, the script warns that installation requires a reboot before the package is available and exits. Reboot, then run `./install.sh` again.
 
+If [chezmoi](https://www.chezmoi.io/) is installed and has an initialized source directory, the script offers (with a `[y/N]` confirmation) to add the extension's GSettings (`protected-apps`, `blur-radius`) to your chezmoi source state, so a later `chezmoi apply` restores them on other machines. This only writes files under your chezmoi source directory — it never runs `chezmoi apply` and never commits or pushes your dotfiles repo; that remains up to you. If chezmoi isn't installed or has no initialized source directory, this step is skipped automatically.
+
 The following sections document the manual steps that `install.sh` automates.
 
 ### Compile the GSettings Schema
