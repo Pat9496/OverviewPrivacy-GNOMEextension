@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-readonly UUID="overview-privacy@pat"
+readonly UUID="overview-privacy@pat9496"
 readonly REPO_DIR="$(dirname "$(readlink -f "$0")")"
 readonly EXT_PARENT_DIR="${HOME}/.local/share/gnome-shell/extensions"
 readonly TARGET_DIR="${EXT_PARENT_DIR}/${UUID}"
@@ -173,15 +173,17 @@ test:
 Open the preferences UI with:
   gnome-extensions prefs ${UUID}
 
-Warning: blur mode can freeze or crash GNOME Shell later, while it is running
-(when opening the Activities overview) -- not during install. If that happens,
-you must log out and log back in to recover; disabling the extension alone
-will not fix a frozen session. See README.md's "Blur Mode: Shell Freeze Risk"
-section for details, and consider Black or White mode as a more stable
-alternative.
+Warning: the first time you open the Activities overview with blur mode active
+-- before GNOME Shell has gone through the session restart above -- Shell can
+freeze or crash. If that happens, you must log out and log back in to recover;
+disabling the extension alone will not fix a frozen session. Once that one
+session restart has happened, blur mode (including changing the blur radius)
+has been confirmed to work reliably with no further restarts needed. See
+README.md's "Blur Mode: Shell Freeze Risk" section for details, and consider
+Black or White mode as an alternative that never requires this.
 
-Note: extension.js's getPreviewContentActor() relies on an undocumented,
-unverified GNOME Shell internal actor name. If nothing visually changes in the
-overview after loading, this is expected until that hook is confirmed against
-a running Shell session (see README.md).
+Note: extension.js's getPreviewContentActor() relies on an undocumented
+GNOME Shell internal actor name. This has been confirmed working on GNOME
+Shell 50; if nothing visually changes in the overview on other supported
+versions (45-49), see README.md's "Verify the Actor Name" section.
 EOF

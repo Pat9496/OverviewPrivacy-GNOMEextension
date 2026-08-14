@@ -1,9 +1,9 @@
 {
-    "uuid": "overview-privacy@pat",
+    "uuid": "overview-privacy@pat9496",
     "name": "Overview Privacy",
     "description": "Blur, black out, or white out window previews for selected apps in the GNOME Shell overview. App icons are left untouched.",
     "shell-version": ["45", "46", "47", "48", "49", "50"],
-    "url": "",
+    "url": "https://github.com/Pat9496/OverviewPrivacy-GNOMEextension",
     "settings-schema": "org.gnome.shell.extensions.overview-privacy",
     "gettext-domain": "overview-privacy"
 }

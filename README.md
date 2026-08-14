@@ -16,9 +16,9 @@ A GNOME Shell extension that obscures window preview thumbnails in the Activitie
 
 ## Status
 
-**Early development phase as a prototype.** The extension code is structurally complete, but the core integration with GNOME Shell's private UI API has **not yet been tested against a running GNOME Shell session**. Verification steps before use are documented in [Known Limitations](#known-limitations).
+**Tested and confirmed working**, including all three modes (blur, black, and white), on GNOME Shell 50. See [Known Limitations](#known-limitations) for version-specific caveats on GNOME Shell 45–49 and the one required first-use step for blur mode.
 
-**⚠ Warning: Blur Mode Shell Freeze Risk**: Blur mode can cause GNOME Shell to freeze or crash *while running*, when opening the Activities overview. If this occurs, you must log out and log back in to recover the session. A simple extension restart is insufficient. This is separate from the routine session restart every fresh install requires (see [Load and Test](#load-and-test)) — that one just makes GNOME Shell notice the new extension; this one is a runtime crash-recovery step. See [Blur Mode: Shell Freeze Risk](#blur-mode-shell-freeze-risk) for details.
+**⚠ Blur Mode: First-Use Session Restart Required**: The first time blur mode is used, before completing the routine post-install session restart (see [Load and Test](#load-and-test)), opening the Activities overview can cause GNOME Shell to freeze or crash. Complete that one session restart first; after that, blur mode — including changing the blur radius — works reliably with no further restarts needed. See [Blur Mode: Shell Freeze Risk](#blur-mode-shell-freeze-risk) for details.
 
 ## Description
 
@@ -70,19 +70,19 @@ The extension must be copied or symlinked into the local extensions directory. F
 
 ```bash
 mkdir -p ~/.local/share/gnome-shell/extensions
-ln -s "$(pwd)" ~/.local/share/gnome-shell/extensions/overview-privacy@pat
+ln -s "$(pwd)" ~/.local/share/gnome-shell/extensions/overview-privacy@pat9496
 ```
 
 Alternatively, copy the extension instead of symlinking:
 
 ```bash
-cp -r . ~/.local/share/gnome-shell/extensions/overview-privacy@pat
+cp -r . ~/.local/share/gnome-shell/extensions/overview-privacy@pat9496
 ```
 
 ### Enable the Extension
 
 ```bash
-gnome-extensions enable overview-privacy@pat
+gnome-extensions enable overview-privacy@pat9496
 ```
 
 ### Load and Test
@@ -118,7 +118,7 @@ Monitor this output while interacting with the overview to detect errors if the 
 ### Via the Preferences Window
 
 ```bash
-gnome-extensions prefs overview-privacy@pat
+gnome-extensions prefs overview-privacy@pat9496
 ```
 
 Opens an Adwaita preferences window with:
@@ -152,9 +152,9 @@ gsettings set org.gnome.shell.extensions.overview-privacy protected-apps "{'fire
 
 ## Known Limitations
 
-The extension hooks into `WindowPreview`, a private UI class in GNOME Shell. The name of the thumbnail content actor property is **not documented** and **has changed across GNOME Shell releases**. The code tries three known variants (`window_container`, `_windowContainer`, `_clone`) in fallback order, but this has **not yet been tested against a running GNOME Shell session**.
+The extension hooks into `WindowPreview`, a private UI class in GNOME Shell. The name of the thumbnail content actor property is **not documented** and **has changed across GNOME Shell releases**. The code tries three known variants (`window_container`, `_windowContainer`, `_clone`) in fallback order. This has been **confirmed working through real-world testing on GNOME Shell 50**; it has not specifically been tested against GNOME Shell 45–49.
 
-**This means:**
+**On untested versions, this means:**
 
 - The extension may not find the content actor in your Shell version.
 - The visual effect may not appear.
@@ -162,9 +162,11 @@ The extension hooks into `WindowPreview`, a private UI class in GNOME Shell. The
 
 ### Blur Mode: Shell Freeze Risk
 
-Blur mode (`Shell.BlurEffect` in `extension.js`) can cause GNOME Shell to freeze or crash when opening the Activities overview. If this happens, you must **log out and log back in** to recover the session. A simple extension restart via `gnome-extensions disable` and `gnome-extensions enable` is insufficient.
+The first time blur mode is used — before GNOME Shell has gone through the session restart that every fresh install requires (see [Load and Test](#load-and-test)) — opening the Activities overview with blur mode (`Shell.BlurEffect` in `extension.js`) active can cause GNOME Shell to freeze or crash. If this happens, you must **log out and log back in** to recover the session. A simple extension restart via `gnome-extensions disable` and `gnome-extensions enable` is insufficient.
 
-To avoid this risk, use **Black** or **White** mode as an alternative to Blur for affected applications. These use a static overlay widget instead of an effect and are more stable.
+Once that one session restart has happened, blur mode — including changing the blur radius — has been confirmed to work reliably, with no further restarts needed.
+
+To avoid the first-use freeze risk entirely, use **Black** or **White** mode instead of Blur for affected applications. These use a static overlay widget instead of an effect, take effect immediately, and never require a session restart.
 
 ### Verify the Actor Name
 
