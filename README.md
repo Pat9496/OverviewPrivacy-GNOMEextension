@@ -170,6 +170,10 @@ Once that one session restart has happened, blur mode — including changing the
 
 To avoid the first-use freeze risk entirely, use **Black** or **White** mode instead of Blur for affected applications. These use a static overlay widget instead of an effect, take effect immediately, and never require a session restart.
 
+### Overlay Alignment During Hover Zoom (Black/White Modes)
+
+GNOME Shell slightly enlarges a window preview's live thumbnail actor when the pointer hovers over it in the overview — a private animation inside `WindowPreview.showOverlay()`/`hideOverlay()` that scales the actor around its center. Blur mode is applied directly to that actor, so it scales along with the animation automatically. Black/White mode instead uses a separate overlay widget positioned on top of it via `Clutter.BindConstraint`, which tracks position and size but not that scale animation on its own; `extension.js` mirrors the actor's scale onto the overlay by hand so it stays aligned while hovering.
+
 ### Verify the Actor Name
 
 If the extension loads but no visual effect appears on window thumbnails:
