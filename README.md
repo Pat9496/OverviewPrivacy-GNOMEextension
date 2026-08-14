@@ -184,7 +184,7 @@ This creates a `.zip` archive (listed in `.gitignore`).
 
 ## License
 
-No license has been chosen yet. [GNOME Extensions](https://extensions.gnome.org/) requires a GPL-compatible license before this extension can be published.
+Licensed under the GNU General Public License v2.0 or later (GPL-2.0-or-later). See [LICENSE](LICENSE) for the full text. This satisfies the GPL-compatible license requirement of [GNOME Extensions](https://extensions.gnome.org/).
 
 ## Project Files
 
