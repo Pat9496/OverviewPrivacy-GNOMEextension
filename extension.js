@@ -21,6 +21,8 @@ class PrivacyOverlay {
         this._contentActor = getPreviewContentActor(preview);
         this._blurEffect = null;
         this._overlayWidget = null;
+        this._scaleXId = null;
+        this._scaleYId = null;
 
         this._settingsChangedId = settings.connect('changed', () => this._update());
         this._destroyId = preview.connect('destroy', () => this.destroy());
@@ -39,6 +41,14 @@ class PrivacyOverlay {
         if (this._blurEffect) {
             this._contentActor?.remove_effect(this._blurEffect);
             this._blurEffect = null;
+        }
+        if (this._scaleXId) {
+            this._contentActor?.disconnect(this._scaleXId);
+            this._scaleXId = null;
+        }
+        if (this._scaleYId) {
+            this._contentActor?.disconnect(this._scaleYId);
+            this._scaleYId = null;
         }
         this._overlayWidget?.destroy();
         this._overlayWidget = null;
@@ -71,6 +81,19 @@ class PrivacyOverlay {
             source: this._contentActor,
             coordinate: Clutter.BindCoordinate.ALL,
         }));
+
+        // WindowPreview.showOverlay()/hideOverlay() animate the content actor's own
+        // scale_x/scale_y on hover (zoom effect); BindConstraint only tracks position/size,
+        // so mirror the scale by hand to keep the overlay aligned during that animation.
+        const [pivotX, pivotY] = this._contentActor.get_pivot_point();
+        this._overlayWidget.set_pivot_point(pivotX, pivotY);
+        this._overlayWidget.scale_x = this._contentActor.scale_x;
+        this._overlayWidget.scale_y = this._contentActor.scale_y;
+        this._scaleXId = this._contentActor.connect('notify::scale-x',
+            () => (this._overlayWidget.scale_x = this._contentActor.scale_x));
+        this._scaleYId = this._contentActor.connect('notify::scale-y',
+            () => (this._overlayWidget.scale_y = this._contentActor.scale_y));
+
         this._contentActor.get_parent()?.insert_child_above(this._overlayWidget, this._contentActor);
     }
 
