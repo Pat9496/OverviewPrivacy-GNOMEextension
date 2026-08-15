@@ -206,6 +206,8 @@ Licensed under the GNU General Public License v2.0 or later (GPL-2.0-or-later). 
 
 ## Credits
 
+Thanks to the [GNOME](https://www.gnome.org/) project for GNOME Shell, its extension APIs, and [gjs.guide](https://gjs.guide/), and to [GNOME Extensions](https://extensions.gnome.org/) for the review process and hosting that make distributing this extension possible.
+
 Thanks to **JustPerfection** for reviewing this extension for the GNOME Extensions directory and flagging two issues, addressed in v1.3 (see [CHANGELOG.md](CHANGELOG.md)):
 
 - `prefs.js`: use the single correct GNOME 45+ import path for `ExtensionPreferences` (see the [gjs.guide preferences upgrade doc](https://gjs.guide/extensions/upgrading/gnome-shell-45.html#preferences)) instead of a GNOME 50 vs. 45-49 try/fallback import.
