@@ -12,6 +12,7 @@ A GNOME Shell extension that obscures window preview thumbnails in the Activitie
 - [Known Limitations](#known-limitations)
 - [Packaging](#packaging)
 - [License](#license)
+- [Credits](#credits)
 - [Project Files](#project-files)
 - [Changelog](CHANGELOG.md)
 
@@ -202,6 +203,13 @@ This creates a `.zip` archive (listed in `.gitignore`).
 ## License
 
 Licensed under the GNU General Public License v2.0 or later (GPL-2.0-or-later). See [LICENSE](LICENSE) for the full text. This satisfies the GPL-compatible license requirement of [GNOME Extensions](https://extensions.gnome.org/).
+
+## Credits
+
+Thanks to **JustPerfection** for reviewing this extension for the GNOME Extensions directory and flagging two issues, addressed in v1.3 (see [CHANGELOG.md](CHANGELOG.md)):
+
+- `prefs.js`: use the single correct GNOME 45+ import path for `ExtensionPreferences` (see the [gjs.guide preferences upgrade doc](https://gjs.guide/extensions/upgrading/gnome-shell-45.html#preferences)) instead of a GNOME 50 vs. 45-49 try/fallback import.
+- `extension.js`: remove `PrivacyOverlay`'s connection to the window preview's `destroy` signal.
 
 ## Project Files
 

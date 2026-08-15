@@ -16,7 +16,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
-- Simplified `prefs.js` imports and removed the overlay's `destroy` signal listener, per GNOME Extensions review feedback.
+- Addressed GNOME Extensions review feedback from JustPerfection:
+  - `prefs.js`: removed the GNOME 50 vs. 45-49 try/fallback import block and replaced it with the single correct GNOME 45+ import path for `ExtensionPreferences`, per the [gjs.guide preferences upgrade doc](https://gjs.guide/extensions/upgrading/gnome-shell-45.html#preferences).
+  - `extension.js`: removed `PrivacyOverlay`'s connection to the window preview's `destroy` signal; overlays now only tear down when the extension disables, rather than also listening for individual preview destruction.
 
 ## [1.0] - 2026-08-14
 
