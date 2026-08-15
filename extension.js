@@ -7,6 +7,7 @@ import * as WindowPreviewModule from 'resource:///org/gnome/shell/ui/windowPrevi
 
 const OVERLAY_BLACK_CLASS = 'overview-privacy-black';
 const OVERLAY_WHITE_CLASS = 'overview-privacy-white';
+const MODES = ['blur', 'black', 'white'];
 
 function getPreviewContentActor(preview) {
     // The window clone actor inside WindowPreview is private Shell UI state
@@ -23,10 +24,12 @@ class PrivacyOverlay {
         this._overlayWidget = null;
         this._scaleXId = null;
         this._scaleYId = null;
+        this._initialized = false;
 
         this._settingsChangedId = settings.connect('changed', () => this._update());
 
         this._update();
+        this._initialized = true;
     }
 
     _getMode() {
@@ -37,16 +40,28 @@ class PrivacyOverlay {
     }
 
     _clear() {
+        // Once _initialized, a destroyed content actor is unparented and no longer on
+        // any Clutter.Stage; this overlay isn't torn down when its preview is (see
+        // CLAUDE.md), so a stale one may still run this on a dead actor. Skip touching
+        // it in that case. Not checked before the first _update() from the constructor,
+        // since a freshly-created WindowPreview isn't attached to a stage yet either
+        // and this would wrongly skip setup.
+        const actorUsable = this._contentActor &&
+            (!this._initialized || this._contentActor.get_stage() !== null);
+
         if (this._blurEffect) {
-            this._contentActor?.remove_effect(this._blurEffect);
+            if (actorUsable)
+                this._contentActor.remove_effect(this._blurEffect);
             this._blurEffect = null;
         }
         if (this._scaleXId) {
-            this._contentActor?.disconnect(this._scaleXId);
+            if (actorUsable)
+                this._contentActor.disconnect(this._scaleXId);
             this._scaleXId = null;
         }
         if (this._scaleYId) {
-            this._contentActor?.disconnect(this._scaleYId);
+            if (actorUsable)
+                this._contentActor.disconnect(this._scaleYId);
             this._scaleYId = null;
         }
         this._overlayWidget?.destroy();
@@ -58,9 +73,11 @@ class PrivacyOverlay {
 
         if (!this._contentActor)
             return;
+        if (this._initialized && this._contentActor.get_stage() === null)
+            return;
 
         const mode = this._getMode();
-        if (!mode)
+        if (!mode || !MODES.includes(mode))
             return;
 
         if (mode === 'blur') {
@@ -111,18 +128,32 @@ export default class OverviewPrivacyExtension extends Extension {
         this._overlays = new Set();
 
         const extension = this;
-        this._originalInit = WindowPreviewModule.WindowPreview.prototype._init;
-        WindowPreviewModule.WindowPreview.prototype._init = function (...args) {
-            extension._originalInit.call(this, ...args);
-            extension._overlays.add(new PrivacyOverlay(this, extension._settings));
+        const originalInit = WindowPreviewModule.WindowPreview.prototype._init;
+        this._originalInit = originalInit;
+
+        this._patchedInit = function (...args) {
+            originalInit.call(this, ...args);
+            if (!extension._overlays)
+                return;
+            try {
+                extension._overlays.add(new PrivacyOverlay(this, extension._settings));
+            } catch (error) {
+                console.error('Overview Privacy: failed to attach privacy overlay to window preview', error);
+            }
         };
+        WindowPreviewModule.WindowPreview.prototype._init = this._patchedInit;
     }
 
     disable() {
-        WindowPreviewModule.WindowPreview.prototype._init = this._originalInit;
+        // Only restore the original _init if it's still ours: another extension may
+        // have patched WindowPreview.prototype._init after us and would restore its
+        // own patch onto this one when it disables in turn.
+        if (WindowPreviewModule.WindowPreview.prototype._init === this._patchedInit)
+            WindowPreviewModule.WindowPreview.prototype._init = this._originalInit;
+        this._patchedInit = null;
         this._originalInit = null;
 
-        for (const overlay of this._overlays)
+        for (const overlay of this._overlays ?? [])
             overlay.destroy();
         this._overlays = null;
 

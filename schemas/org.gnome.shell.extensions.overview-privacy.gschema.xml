@@ -12,6 +12,7 @@
       </description>
     </key>
     <key name="blur-radius" type="i">
+      <range min="4" max="128"/>
       <default>32</default>
       <summary>Blur radius</summary>
       <description>Blur radius used for apps whose mode is "blur".</description>

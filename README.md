@@ -164,6 +164,10 @@ The extension hooks into `WindowPreview`, a private UI class in GNOME Shell. The
 - The visual effect may not appear.
 - The feature may work on some GNOME Shell versions but not others.
 
+### Workspace Thumbnail Strip Not Covered
+
+The overview's window preview grid is obscured, but the small workspace thumbnail strip on the side of the overview is not: its window clones are a different, separate actor class (`WindowClone` in `workspaceThumbnail.js`), which this extension does not hook. Protected windows remain visible at that small size in the strip.
+
 ### Blur Mode: Shell Freeze Risk
 
 The first time blur mode is used — before GNOME Shell has gone through the session restart that every fresh install requires (see [Load and Test](#load-and-test)) — opening the Activities overview with blur mode (`Shell.BlurEffect` in `extension.js`) active can cause GNOME Shell to freeze or crash. If this happens, you must **log out and log back in** to recover the session. A simple extension restart via `gnome-extensions disable` and `gnome-extensions enable` is insufficient.

@@ -95,12 +95,13 @@ export default class OverviewPrivacyPreferences extends ExtensionPreferences {
             .map(appInfo => ({id: appInfo.get_id(), name: appInfo.get_display_name()}))
             .sort((a, b) => a.name.localeCompare(b.name));
 
+        const addPlaceholder = _('Select an application…');
         const addRow = new Adw.ComboRow({
             title: _('Add application'),
-            model: Gtk.StringList.new(installedApps.map(app => app.name)),
+            model: Gtk.StringList.new([addPlaceholder, ...installedApps.map(app => app.name)]),
         });
         addRow.connect('notify::selected', () => {
-            const app = installedApps[addRow.selected];
+            const app = installedApps[addRow.selected - 1];
             if (!app)
                 return;
             const map = readMap();
@@ -109,6 +110,7 @@ export default class OverviewPrivacyPreferences extends ExtensionPreferences {
                 writeMap(map);
                 refresh();
             }
+            addRow.selected = 0;
         });
         group.add(addRow);
 
