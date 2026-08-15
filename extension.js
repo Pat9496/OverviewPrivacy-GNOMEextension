@@ -25,7 +25,6 @@ class PrivacyOverlay {
         this._scaleYId = null;
 
         this._settingsChangedId = settings.connect('changed', () => this._update());
-        this._destroyId = preview.connect('destroy', () => this.destroy());
 
         this._update();
     }
@@ -102,10 +101,6 @@ class PrivacyOverlay {
         if (this._settingsChangedId) {
             this._settings.disconnect(this._settingsChangedId);
             this._settingsChangedId = null;
-        }
-        if (this._destroyId) {
-            this._preview.disconnect(this._destroyId);
-            this._destroyId = null;
         }
     }
 }

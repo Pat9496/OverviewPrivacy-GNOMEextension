@@ -3,14 +3,7 @@ import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import Gtk from 'gi://Gtk';
 
-// GNOME 50 moved the prefs base classes to a new resource path; GNOME 45-49 only
-// have the old one. Try the new path first, fall back to the old one.
-let ExtensionPreferences, _;
-try {
-    ({ExtensionPreferences, gettext: _} = await import('resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js'));
-} catch {
-    ({ExtensionPreferences, gettext: _} = await import('resource:///org/gnome/shell/extensions/prefs.js'));
-}
+import {ExtensionPreferences, gettext as _} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
 const MODES = ['blur', 'black', 'white'];
 const modeLabels = () => [_('Blur'), _('Black out'), _('White out')];
