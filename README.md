@@ -13,6 +13,7 @@ A GNOME Shell extension that obscures window preview thumbnails in the Activitie
 - [Packaging](#packaging)
 - [License](#license)
 - [Project Files](#project-files)
+- [Changelog](CHANGELOG.md)
 
 ## Status
 
@@ -209,3 +210,4 @@ Licensed under the GNU General Public License v2.0 or later (GPL-2.0-or-later). 
 - `metadata.json` — Extension metadata (UUID, name, description, supported GNOME Shell versions, settings schema ID).
 - `schemas/org.gnome.shell.extensions.overview-privacy.gschema.xml` — GSettings schema definition (two keys: `protected-apps` of type `a{ss}` and `blur-radius` of type Integer).
 - `stylesheet.css` — CSS classes for black and white overlays (`.overview-privacy-black`, `.overview-privacy-white`).
+- `CHANGELOG.md` — Notable changes per version.
