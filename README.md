@@ -5,6 +5,8 @@
 
 A GNOME Shell extension that obscures window preview thumbnails in the Activities overview for selected applications. Choose from blur, black overlay, or white overlay. App icons remain untouched.
 
+[Deutsche Version](README.de.md)
+
 ## Table of Contents
 
 - [Status](#status)
