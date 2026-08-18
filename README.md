@@ -1,5 +1,8 @@
 # Overview Privacy
 
+[![License: GPL-2.0-or-later](https://img.shields.io/badge/License-GPL--2.0--or--later-blue.svg)](LICENSE)
+![GNOME Shell](https://img.shields.io/badge/GNOME%20Shell-45--50-4A86CF?logo=gnome&logoColor=white)
+
 A GNOME Shell extension that obscures window preview thumbnails in the Activities overview for selected applications. Choose from blur, black overlay, or white overlay. App icons remain untouched.
 
 ## Table of Contents
